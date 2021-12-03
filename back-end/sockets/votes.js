@@ -1,11 +1,19 @@
-const Language = require("../models/Language");
+const Language = require('../models/Language');
+
+const reactions = {
+  love: { count: 0 },
+  surprised: { count: 0 },
+  happy: { count: 0 },
+  sad: { count: 0 },
+};
 
 module.exports = (io) =>
-  io.on("connection", (socket) => {
-    socket.on("increaseVotes", async ({ id }) => {
-      console.log(`Cliente votou na linguagem de id ${id}`);
-      await Language.increaseVotes(id);
-      const data = await Language.getById(id);
-      io.emit("refreshVotes", data);
+  io.on('connection', (socket) => {
+    socket.on('sendReaction', async ({ value }) => {
+      console.log(`Cliente clicou na reação ${value}`);
+      reactions[value].count += 1;
+      // await Language.increaseVotes(value);
+      // const data = await Language.getByvalue(value);
+      io.emit('refreshReactions', reactions);
     });
   });

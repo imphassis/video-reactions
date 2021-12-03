@@ -1,43 +1,71 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-import { Card } from "react-bootstrap";
+import { Button } from 'react-bootstrap';
+import socket from '../utils/socketClient';
 
-import LanguageCard from "../components/LanguageCard";
+import '../App.css';
+
+const allButtons = [
+  { name: 'love', emoji: 'far fa-grin-hearts' },
+  { name: 'surprised', emoji: 'far fa-surprise' },
+  { name: 'happy', emoji: 'far fa-laugh-beam' },
+  { name: 'sad', emoji: 'far fa-meh-rolling-eyes' },
+];
 
 function Home() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [languages, setLanguages] = useState([]);
+  const [reactions, setReactions] = useState({
+    love: { count: 10 },
+    surprised: { count: 2 },
+    happy: { count: 6 },
+    sad: { count: 3 },
+  });
+
+  const handleClick = (e) => {
+    const { value } = e.target;
+    console.log(value);
+
+    socket.emit('sendReaction', { value });
+  };
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch("http://localhost:3001/languages")
-      .then((response) => response.json())
-      .then((languages) => {
-        setIsLoading(false);
-        setLanguages(languages);
-      });
-  }, []);
+    socket.on('refreshReactions', (data) => {
+      setReactions(data);
+    });
+  }, [reactions]);
 
   return (
-    <div>
-      <h1>Escolha sua linguagem favorita:</h1>
+    <div className="video-section">
+      <h1>Reações ao video</h1>
 
-      {isLoading ? (
-        <p>Carregando</p>
-      ) : (
-        <Card style={{ width: "18rem" }}>
-          {languages.map(({ _id, name, image, votes }, index) => (
-            <LanguageCard
-              key={_id}
-              index={index}
-              id={_id}
-              name={name}
-              image={image}
-              votes={votes}
-            />
-          ))}
-        </Card>
-      )}
+      {/* <iframe
+        width="560"
+        height="315"
+        src="https://www.youtube.com/embed/v3AIvqlOe8o"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      ></iframe> */}
+
+      <section>
+        {allButtons.map((btn) => {
+          return (
+            <div>
+              <Button
+                key={btn.name}
+                className="emoji-button"
+                variant="outline-dark"
+                size="lg"
+                style={{ fontSize: '2rem', zIndex: '1' }}
+                value={btn.name}
+                onClick={handleClick}
+              >
+                <i className={btn.emoji}></i>
+              </Button>
+              <p>{reactions[btn.name].count}</p>
+            </div>
+          );
+        })}
+      </section>
     </div>
   );
 }

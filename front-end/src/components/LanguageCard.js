@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
-import { Card, Button } from "react-bootstrap";
+import { Card, Button } from 'react-bootstrap';
 
-import socket from "../utils/socketClient";
+import socket from '../utils/socketClient';
 
 function LanguageCard({ index, id, name, image, votes }) {
   const [currentVotes, setCurrentVotes] = useState(votes);
 
   useEffect(() => {
-    socket.on("refreshVotes", (language) => {
+    socket.on('refreshReactions', (language) => {
       if (language._id === id) setCurrentVotes(language.votes);
     });
   }, [id]);
 
   const handleClick = (e) => {
-    socket.emit("increaseVotes", { id });
+    socket.emit('sendReaction', { id });
   };
 
   return (
@@ -23,7 +23,7 @@ function LanguageCard({ index, id, name, image, votes }) {
       <Card.Body>
         <Card.Title>{name}</Card.Title>
         <Card.Text>
-          Votos:{" "}
+          Votos:{' '}
           <span data-testid={`current-votes-${index}`}>{currentVotes}</span>
         </Card.Text>
         <Button onClick={handleClick} data-testid={`vote-participant-${index}`}>
